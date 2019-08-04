@@ -1,0 +1,33 @@
+.canvas {
+  height:450px;
+  overflow-y:auto;
+}
+.comment {
+  background:#f5f5f5;
+  color:#555;
+  border-radius:20px;
+  padding:10px;
+  margin:5px;
+}
+.comments label {
+  font-size: 0.8em;
+  margin:0;
+  padding:0;
+  color:#777;
+  padding-left: 25px;
+}
+.comments textarea {
+	color:#444;
+	display: block;
+	width:99%;
+	height:70px;
+	border:1px solid #f3f3f3;
+	border-radius: 20px;
+	margin:5px;
+	padding:10px;
+}
+.comment-tools {
+  cursor: pointer;
+  font-size: 0.7em;
+  float:right;
+}
