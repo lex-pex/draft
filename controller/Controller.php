@@ -11,8 +11,8 @@ class Controller {
 
 	public function pager(){
 		$articles = Article::all();
-        require_once ROOT.'/view/index.php';
-        return true;
+		require_once ROOT.'/view/index.php';
+		return true;
 	}
 
 	public function index($page = '') {
