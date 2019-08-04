@@ -3,7 +3,12 @@ namespace Model;
 use PDO;
 class Connection {
     public static function getConnection() {
-        $params = ['host' => 'localhost', 'dbname' => 'draft', 'user' => 'root', 'pass' => 'LucK'];
+        $params = [
+            'host' => 'localhost',
+            'dbname' => 'draft',
+            'user' => 'secret',
+            'pass' => 'secret'
+        ];
         $dsn = "mysql:host={$params['host']};dbname={$params['dbname']}";
         $db = new PDO($dsn, $params['user'], $params['pass']);
         return $db;
@@ -14,6 +19,7 @@ class Connection {
  * Method allows to test db-connection
  * And perform seed mock data for tables
  */
+
 // tune_up();
 
 function tune_up() {

@@ -31,8 +31,8 @@ class Controller {
 			$a->id = 0;
 			$articles[] = $a;
 		}
-        require_once ROOT.'/view/index.php';
-        return true;
+		require_once ROOT.'/view/index.php';
+		return true;
 	}
 
 	public function create() {
@@ -66,15 +66,15 @@ class Controller {
 	public function show(string $id) {
 		if(!is_numeric($id)) Router::response_404();
 		$article = Article::find($id);
-        require_once ROOT.'/view/show.php';
-        return true;
+		require_once ROOT.'/view/show.php';
+		return true;
 	}
 
 	public function edit(string $id) {
 		if(!is_numeric($id)) Router::response_404();
 		if(!$a = Article::find($id)) Router::response_404();
 		require_once ROOT.'/view/edit.php';
-        return true;
+		return true;
 	}
 
 	public function update() {
