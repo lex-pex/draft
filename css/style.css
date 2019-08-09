@@ -1,3 +1,8 @@
+
+.welcome-area {
+  padding:65px 0 10px 0;
+  background:#edf5f8;
+}
 .canvas {
   height:450px;
   overflow-y:auto;

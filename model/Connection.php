@@ -6,8 +6,8 @@ class Connection {
         $params = [
             'host' => 'localhost',
             'dbname' => 'draft',
-            'user' => 'secret',
-            'pass' => 'secret'
+            'user' => 'root',
+            'pass' => 'LucK'
         ];
         $dsn = "mysql:host={$params['host']};dbname={$params['dbname']}";
         $db = new PDO($dsn, $params['user'], $params['pass']);
@@ -38,6 +38,7 @@ class DbUtil {
 
     public $table = 'comments';
     public $fields = ['post_id', 'text'];
+    
     private static $db;
 
     public function __construct() {
@@ -46,7 +47,7 @@ class DbUtil {
 
     public function run() {
 
-    	$this->seedComments();
+    	// $this->seedComments();
 
     	// $this->seedTable(20, ["Title", "Text of the Article!"]);
         // $this->showResult($this->deleteAll());
