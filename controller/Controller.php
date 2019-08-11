@@ -131,25 +131,30 @@ class Controller {
 	/**
 	 *  ______________ Comments Controller Block ______________ 
 	 */
-	public function commentsIndex() {
-		$id = $_POST['id'];
-		$comments = Comment::where(['post_id' => $id]);
-		echo json_encode($comments);
+
+    // Show All Comments
+    public function commentsIndex() {
+        $id = $_POST['id'];
+        $comments = Comment::where(['post_id' => $id]);
+        echo json_encode($comments);
 	}
 
-	public function commentStore() {
+    // Write Down the new comment
+    public function commentStore() {
 		$post_id = $_POST['post_id'];
 		$text = $_POST['text'];
 		$comment = new Comment([$post_id, $text]);
 		$comment->save();
 	}
 
+    // Retreive the Comment Record for changes
 	public function commentEdit() {
 		$id = $_POST['id'];
 		$c = Comment::find($id);
 		echo json_encode($c);
 	}
 
+    // Retrieve, change and save the comment record 
 	public function commentUpdate() {
 		$id = $_POST['id'];
 		$text = $_POST['text'];
@@ -158,7 +163,8 @@ class Controller {
 		$c->save();
 	}
 
-	public function commentDestroy($id) {
+    // Perform delete query without retrieving 
+    public function commentDestroy($id) {
 		$id = $_POST['id'];
 		echo Comment::destroy($id);
 	}

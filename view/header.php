@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="Add-on Web-App">
     <meta name="base" content="<? echo(BASE) ?>">
-    <title>Blog</title>
+    <title>Draft Blog Raw PHP</title>
     <link href="<? route('css/bs.css') ?>" rel="stylesheet">
     <link href="<? route('css/style.css') ?>" rel="stylesheet">
   </head>
