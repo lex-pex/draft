@@ -6,6 +6,7 @@
     <meta name="description" content="Add-on Web-App">
     <meta name="base" content="<? echo(BASE) ?>">
     <title>Draft Blog Raw PHP</title>
+    <link rel="icon" href="<? echo BASE ?>/img/favicon_db.png">
     <link href="<? route('css/bs.css') ?>" rel="stylesheet">
     <link href="<? route('css/style.css') ?>" rel="stylesheet">
   </head>
