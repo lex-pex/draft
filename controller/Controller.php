@@ -16,6 +16,7 @@ class Controller {
 	}
 
 	public function index($page = '') {
+
 		if($page === '') $page = 0;
 		if(!is_numeric($page)) Router::response_404();
 		$p = ($page < 1) ? 0: ($page - 1);
@@ -135,7 +136,7 @@ class Controller {
     // Show All Comments
     public function commentsIndex() {
         $id = $_POST['id'];
-        $comments = Comment::where(['post_id' => $id]);
+        $comments = Comment::where('post_id', $id);
         echo json_encode($comments);
 	}
 

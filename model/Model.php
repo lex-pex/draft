@@ -5,6 +5,7 @@ require_once(ROOT . '/model/Connection.php');
 use Model\Connection;
 use PDO;
 
+
 class Model {
 
     public $table = '';
@@ -14,8 +15,10 @@ class Model {
 
     public function __construct(array $fields = null) {
         $idx = 0;
-        foreach ($this->fields as $key)
-            $this->fields[$key] = $fields[$idx ++];
+        foreach ($this->fields as $key) {
+            $this->fields[$key] = isset($fields[$idx]) ? $fields[$idx] : null;
+            $idx ++;
+        }
         self::$db = Connection::getConnection();
     }
 
@@ -46,17 +49,19 @@ class Model {
      * @return object $this on success, or null
      */
     private function insert() {
+        $names = '';
+        $wildcards = '';
         foreach ($this->fields as $n => $f)
-            if(is_numeric($n)) {
+            if(is_numeric($n) && $this->fields[$f] !== null) {
                 $names .= "$f, ";
                 $wildcards .= ":$f, ";
             }
         $names = trim($names, ', ');              // field, field ...
         $wildcards = trim($wildcards, ', ');      // :field, :field ...
-        $query = "INSERT INTO $this->table ($names) VALUES ($wildcards)"; 
+        $query = "INSERT INTO $this->table ($names) VALUES ($wildcards)";
         $res = self::$db->prepare($query);
         foreach ($this->fields as $n => $f)
-            if(is_numeric($n))
+            if(is_numeric($n) && $this->fields[$f] !== null)
                 $res->bindParam(":$f", $this->fields[$f]);
         if ($res->execute()) {
             $this->id = self::$db->lastInsertId();
@@ -70,16 +75,17 @@ class Model {
      * @return object $this on success, or null
      */
     private function update() {
+        $q = '';
         foreach ($this->fields as $n => $f)
-                if(is_numeric($n))
-                    $q .= "$f = :$f, ";
+            if(is_numeric($n))
+                $q .= "$f = :$f, ";
         $q = trim($q, ', '); // field = :field, field = :field
         $query = "UPDATE $this->table SET $q WHERE id = :id";
         $res = self::$db->prepare($query);
         $res->bindParam(':id', $this->id);
         foreach ($this->fields as $n => $f)
-                if(is_numeric($n))
-                    $res->bindParam(":$f", $this->fields[$f]);
+            if(is_numeric($n))
+                $res->bindParam(":$f", $this->fields[$f]);
         if ($res->execute()) return $this;
         return null;
     }
@@ -96,12 +102,26 @@ class Model {
         return $res->execute();
     }
 
-    /** 
-     *  Static Function Interfaces and General Methods
+    /**
+     *  Below are Static Functions' Interfaces and General Methods
      */
 
     /**
-     * Static Method for delete a record in one touch 
+     * Static Method for check whether the record exists
+     * @param string $key name of record
+     * @param string $value is needed value of record
+     * @return boolean is such record exists
+     */
+    public static function exists(string $key, string $value) {
+        $className = get_called_class();
+        $m = new $className();
+        if(count($m->condition($key, $value, '=')))
+            return true;
+        return false;
+    }
+
+    /**
+     * Static Method for delete a record in one touch
      * Delete the record of current object from db table
      * @return int as amount of deleted table rows
      */
@@ -119,7 +139,7 @@ class Model {
     /**
      * Static Interface for object fucntion select()
      * Retrieve an instance from Db table and wrap it into this object
-     * @param  int $offset start position from zero (excluding)
+     * @param int $id exact position in the database
      * @return object $this model on success filled with db row, or null
      */
     public static function find(int $id) {
@@ -129,9 +149,8 @@ class Model {
     }
 
     /**
-     * Static Interface for object fucntion selectAll()
+     * Static Interface for object function selectAll()
      * Retrieve all rows from Db table and wrap its into $this object
-     * @param  int $offset start position from zero (excluding)
      * @return array objects $this model on success filled with db row, or null
      */
     public static function all() {
@@ -154,20 +173,20 @@ class Model {
     }
 
     /**
-     * Static Interface for object fucntion condition()
+     * Static Interface for object function condition()
      * Retrieve subset from table according "where" clause
-     * @param  array contains clause as key and needed value
+     * @param string $key, $value clause as key and needed value
      * @return array of model objects, or null
      */
-    public static function where(array $condtion) {
+    public static function where(string $key, string $value, string $symbol = '=') {
         $className = get_called_class();
         $m = new $className();
-        return $m->condition($condtion);
+        return $m->condition($key, $value, $symbol);
     }
 
     /**
      * Retrieve an instance from Db table and wrap it into this object
-     * @param  int $offset start position from zero (excluding)
+     * @param int $id according id field in database
      * @return object $this model on success filled with db row, or null
      */
     public function select($id) {
@@ -191,43 +210,16 @@ class Model {
 
     /**
      * Retrieve all rows from Db table and wrap its into $this object
-     * @param  int $offset start position from zero (excluding)
      * @return array objects $this model on success filled with db row, or null
      */
     public function selectAll() {
-    	$query = "SELECT * FROM $this->table";
+        $query = "SELECT * FROM $this->table";
         $res = self::$db->prepare($query);
         $res->setFetchMode(PDO::FETCH_ASSOC);
         $res->execute();
         $className = get_class($this);
         $i = 0;
-        while ($row = $res->fetch()) {
-        	$m = new $className();
-        	$m->id = $row['id'];
-            foreach ($this->fields as $n => $f)
-                if(is_numeric($n))
-                    $m->fields[$f] = $row[$f];
-        	$resultSet[$i] = $m;
-            $i++;
-        }
-        return $resultSet;
-    }
-
-    /**
-     * Retrieve subset from table in Descending order
-     * @param  int $offset start position from zero (excluding)
-     * @param  int $limit end position (including) of subset from offset
-     * @return int as amount of deleted table rows
-     */
-    public function slice(int $offset, int $limit) {
-        $query = "SELECT * FROM $this->table ORDER BY id DESC LIMIT :limit OFFSET :offset";
-        $res = self::$db->prepare($query);
-        $res->bindParam(':offset', $offset, PDO::PARAM_INT);
-        $res->bindParam(':limit', $limit, PDO::PARAM_INT);
-        $res->setFetchMode(PDO::FETCH_ASSOC);
-        $res->execute();
-        $className = get_class($this);
-        $i = 0;
+        $resultSet = [];
         while ($row = $res->fetch()) {
             $m = new $className();
             $m->id = $row['id'];
@@ -241,21 +233,48 @@ class Model {
     }
 
     /**
-     * Static Interface for object fucntion condition()
-     * Retrieve subset from table according "where" clause
-     * @param  array contains clause as key and needed value
-     * @return array of model objects, or null
+     * Retrieve subset from table in Descending order
+     * @param  int $offset start position from zero (excluding)
+     * @param  int $limit end position (including) of subset from offset
+     * @return array as result set of table rows
      */
-    public function condition(array $condition) {
-        $k = array_keys($condition)[0];
-        $v = $condition[$k];
-        $query = "SELECT * FROM $this->table WHERE $k = :value";
+    public function slice(int $offset, int $limit) {
+        $query = "SELECT * FROM $this->table ORDER BY id DESC LIMIT :limit OFFSET :offset";
         $res = self::$db->prepare($query);
-        $res->bindParam(':value', $v);
+        $res->bindParam(':offset', $offset, PDO::PARAM_INT);
+        $res->bindParam(':limit', $limit, PDO::PARAM_INT);
         $res->setFetchMode(PDO::FETCH_ASSOC);
         $res->execute();
         $className = get_class($this);
         $i = 0;
+        $resultSet = [];
+        while ($row = $res->fetch()) {
+            $m = new $className();
+            $m->id = $row['id'];
+            foreach ($this->fields as $n => $f)
+                if(is_numeric($n))
+                    $m->fields[$f] = $row[$f];
+            $resultSet[$i] = $m;
+            $i++;
+        }
+        return $resultSet;
+    }
+
+    /**
+     * Static Interface for object function condition()
+     * Retrieve subset from table according "where" clause
+     * @param string $key = $valie clause as key and needed value
+     * @return array of model objects, empty on bad condition
+     */
+    public function condition(string $key, string $value, string $symbol = '=') {
+        $query = "SELECT * FROM $this->table WHERE $key $symbol :value";
+        $res = self::$db->prepare($query);
+        $res->bindParam(':value', $value);
+        $res->setFetchMode(PDO::FETCH_ASSOC);
+        $res->execute();
+        $className = get_called_class();
+        $i = 0;
+        $resultSet = [];
         while ($row = $res->fetch()) {
             $m = new $className();
             $m->id = $row['id'];
@@ -268,9 +287,4 @@ class Model {
         return $resultSet;
     }
 }
-
-
-
-
-
 

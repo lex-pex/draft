@@ -18,7 +18,7 @@
               <textarea type="text" name="text" class="form-control" id="text" required></textarea>
             </div>
             <button type="submit" class="btn btn-primary">Submit</button>
-          </form> 
+          </form>
 			  </div>
 	    </div>
 	  </div>
